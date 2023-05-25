@@ -17,3 +17,10 @@ class IsAdmin(BasePermission):
     """Доступ только пользователям с ролью 'Admin'"""
     def has_permission(self, request, view):
         return request.user and request.user.is_admin
+
+
+# class IsAdminOrReadOnly(BasePermission):
+#     """Доступ только пользователея с ролью 'Admin', либо только чтение"""
+#     def has_permission(self, request, view):
+#         return (request.method == 'GET'
+#                 or request.user.is_admin)

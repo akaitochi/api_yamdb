@@ -15,11 +15,6 @@ class User(AbstractUser):
         default='user',
     )
 
-    # Скорее всего т.к. user дефолтный это писать не нужно
-    # @property
-    # def is_user(self):
-    #     pass
-
     @property
     def is_moderator(self):
         return self.role == "moderator"
