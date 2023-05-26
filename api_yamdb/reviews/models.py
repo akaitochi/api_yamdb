@@ -1,7 +1,10 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 from .validators import validate_year
 
+VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
 
 class Categories():
     name = models.CharField(
@@ -64,3 +67,68 @@ class Titles(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    title = models.ForeignKey(
+        Titles,
+        verbose_name='Произведение',
+        on_delete=models.CASCADE,
+    )
+    text = models.TextField(verbose_name='Текст')
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        on_delete=models.CASCADE,
+    )
+    score = models.PositiveSmallIntegerField(
+        verbose_name='Рейтинг',
+        validators=[
+            MinValueValidator(1, VALIDATOR_MESSAGE),
+            MaxValueValidator(10, VALIDATOR_MESSAGE)
+        ]
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации отзыва',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+        default_related_name = 'reviews'
+        ordering = ['pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['id', 'title', 'author'],
+                name='unique_review'
+            ),
+        ]
+
+
+class Comment(models.Model):
+    title = models.ForeignKey(
+        Titles,
+        verbose_name='Произведение',
+        on_delete=models.CASCADE,
+    )
+    text = models.TextField(verbose_name='Текст комментария')
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        on_delete=models.CASCADE,
+    )
+    pub_date = models.DateTimeField(
+        verbose_name='Дата публикации комментария',
+        auto_now_add=True,
+        db_index=True
+    )
+
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        default_related_name = 'comments'
+        ordering = ['pub_date']
