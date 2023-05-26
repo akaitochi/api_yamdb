@@ -1,6 +1,9 @@
 from rest_framework.viewsets import ModelViewSet
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from reviews.models import Categories, Genres, Titles
+from reviews.models import Categories, Genres, Titles, Review, Comment
+from .serializers import ReviewSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -28,3 +31,26 @@ class TitleViewSet(ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = ''
     permission_classes = ''
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    Получение списка всех Отзывов. Доступ без токена.
+    """
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(
+            title,
+            id=self.kwargs.get('title_id')
+        )
+        serializer.save(author=self.request.user, title=title)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exceprion=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

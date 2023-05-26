@@ -70,6 +70,7 @@ class Titles(models.Model):
 
 
 class Review(models.Model):
+    """Отзыв произведения."""
     title = models.ForeignKey(
         Titles,
         verbose_name='Произведение',
@@ -102,16 +103,16 @@ class Review(models.Model):
         ordering = ['pub_date']
         constraints = [
             models.UniqueConstraint(
-                fields=['id', 'title', 'author'],
+                fields=['author', 'title'],
                 name='unique_review'
             ),
         ]
 
 
 class Comment(models.Model):
-    title = models.ForeignKey(
-        Titles,
-        verbose_name='Произведение',
+    """Комментарий к отзыву произведения."""
+    review = models.ForeignKey(
+        Review,
         on_delete=models.CASCADE,
     )
     text = models.TextField(verbose_name='Текст комментария')
