@@ -3,14 +3,15 @@ from django.db import models
 from .validators import validate_year
 
 
-class Categories():
+class Categories(models.Model):
     name = models.CharField(
-        max_length=200,
-        verbose_name='Название жанра'
+        max_length=256,
+        verbose_name='Название категории'
     )
     slug = models.SlugField(
+        max_length=50,
         unique=True,
-        verbose_name='Слаг жанра'
+        verbose_name='Слаг категории'
     )
 
     class Meta:
@@ -19,13 +20,15 @@ class Categories():
 
 class Genres(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=256,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
+        max_length=50,
         unique=True,
         verbose_name='Слаг жанра'
     )
+    on_delete = models.CASCADE
 
     class Meta:
         verbose_name = 'Жанр'
@@ -33,7 +36,7 @@ class Genres(models.Model):
 
 class Titles(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=256,
         verbose_name='Название'
     )
     year = models.IntegerField(
@@ -57,6 +60,7 @@ class Titles(models.Model):
         verbose_name='Категория',
         related_name='titles'
     )
+    on_delete = models.CASCADE
 
     class Meta:
         ordering = ('name',)
