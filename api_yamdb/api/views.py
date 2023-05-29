@@ -1,17 +1,38 @@
-from rest_framework import pagination, status, viewsets
+from sqlite3 import IntegrityError
+from rest_framework import pagination, serializers, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import User
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+
+from users.models import User
 from .permissions import IsAdmin
-from .serializers import UserSerializer
+from .serializers import SignUpSerializer, UserSerializer
 
 
 @api_view(['POST'])
 def signup(request):
-    pass
+    """Создает пользователя и отправляет код подтверждения"""
+    serializer = SignUpSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    try:
+        user, _ = User.objects.get_or_create(**serializer.validated_data)
+    except IntegrityError:
+        raise serializers.ValidationError
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        subject='YaMDB registration',
+        message=f'Your registration code {confirmation_code}',
+        from_email=None,
+        recipient_list=[user.email]
+    )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@api_view(['POST'])
+def token(request):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

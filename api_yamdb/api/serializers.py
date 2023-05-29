@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User
+from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -24,3 +24,13 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Пользователя с username "me" нельзя создавать'
             )
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True, 
+        max_length=150,
+        validators=[
+            validate_username,
+        ])
+    token = serializers.CharField(required=True)
