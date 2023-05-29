@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from users.models import User
+from reviews.models import User
+from reviews.validators import validate_username
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,21 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализация данных пользователя при регистрации"""
-    username = serializers.CharField(required=True, max_length=150)
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+        validators=[
+            validate_username,
+        ])
     email = serializers.EmailField(required=True, max_length=254)
-
-    def validate_username(self, value):
-        """Проверяем, что нельзя использовать 'me' в качестве username"""
-        username = value.lower()
-        if username == 'me':
-            raise serializers.ValidationError(
-                'Пользователя с username "me" нельзя создавать'
-            )
 
 
 class TokenSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
-        required=True, 
+        required=True,
         max_length=150,
         validators=[
             validate_username,
