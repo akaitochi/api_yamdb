@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 
 def validate_year(value):
-    if value > dt.today().year:
+    if value > dt.date.today().year:
         raise ValidationError('Год выпуска не может быть больше текущего')
 
 

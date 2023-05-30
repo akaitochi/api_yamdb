@@ -40,14 +40,14 @@ class TitleWriteDeleteSerializer(serializers.ModelSerializer):
     """
     Сериализатор для запросов POST, DELETE.
     """
-    genre = GenreSerializer(
+    genre = serializers.SlugRelatedField(
         queryset=Genres.objects.all(),
         slug_field='slug',
         many=True
     )
-    category = CategorySerializer(
+    category = serializers.SlugRelatedField(
         queryset=Categories.objects.all(),
-        slug_fields='slug'
+        slug_field='slug'
     )
     year = serializers.IntegerField(validators=[validate_year])
 

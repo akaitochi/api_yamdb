@@ -14,7 +14,7 @@ from rest_framework.filters import SearchFilter
 from reviews.models import Categories, Genres, Titles, User
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
-from .permissions import IsAdmin
+from .permissions import IsAdmin, IsAdminOrReadOnly
 from .serializers import (
     CategorySerializer, GenreSerializer, SignUpSerializer,
     TokenSerializer, TitleReadSerializer, TitleWriteDeleteSerializer,
@@ -28,8 +28,9 @@ class CategoryViewSet(ModelMixinSet):
     """
     queryset = Categories.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = ''
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
+    pagination_class = pagination.LimitOffsetPagination
     search_fields = ('name',)
 
 
@@ -39,8 +40,9 @@ class GenreViewSet(ModelMixinSet):
     """
     queryset = Genres.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = ''
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
+    pagination_class = pagination.LimitOffsetPagination
     search_fields = ('name',)
 
 
@@ -50,8 +52,9 @@ class TitleViewSet(ModelMixinSet):
     """
     queryset = Titles.objects.all()
     serializer_class = TitleReadSerializer
-    permission_classes = ''
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
+    pagination_class = pagination.LimitOffsetPagination
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
