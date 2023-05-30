@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
 from reviews.models import User
-from reviews.validators import validate_username
+from reviews.validators import ValidateUsername
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(ValidateUsername, serializers.ModelSerializer):
     """Сериализация данных пользователя"""
 
     class Meta:
@@ -13,22 +13,18 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'bio', 'role')
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(ValidateUsername, serializers.Serializer):
     """Сериализация данных пользователя при регистрации"""
     username = serializers.CharField(
         required=True,
         max_length=150,
-        validators=[
-            validate_username,
-        ])
+    )
     email = serializers.EmailField(required=True, max_length=254)
 
 
-class TokenSerializer(serializers.ModelSerializer):
+class TokenSerializer(ValidateUsername, serializers.Serializer):
     username = serializers.CharField(
         required=True,
         max_length=150,
-        validators=[
-            validate_username,
-        ])
+    )
     token = serializers.CharField(required=True)
