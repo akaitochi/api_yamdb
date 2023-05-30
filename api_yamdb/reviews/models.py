@@ -92,6 +92,6 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
-    @property
-    def is_superuser(self):
-        return self.role == "admin"
+    # @property
+    # def is_superuser(self):
+    #     return self.role == "admin"
