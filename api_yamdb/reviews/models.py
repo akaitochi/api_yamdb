@@ -4,7 +4,7 @@ from django.db import models
 from .validators import validate_year
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name='Название категории'
@@ -12,6 +12,7 @@ class Categories(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        db_index=True,
         verbose_name='Слаг категории'
     )
 
@@ -19,7 +20,7 @@ class Categories(models.Model):
         verbose_name = 'Категория'
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name='Название жанра'
@@ -27,6 +28,7 @@ class Genres(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        db_index=True,
         verbose_name='Слаг жанра'
     )
     on_delete = models.CASCADE
@@ -35,9 +37,10 @@ class Genres(models.Model):
         verbose_name = 'Жанр'
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         max_length=256,
+        db_index=True,
         verbose_name='Название'
     )
     year = models.IntegerField(
@@ -50,11 +53,11 @@ class Titles(models.Model):
         verbose_name='Описание'
     )
     genre = models.ManyToManyField(
-        Genres,
+        Genre,
         verbose_name='Жанр'
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

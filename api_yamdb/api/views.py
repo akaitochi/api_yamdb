@@ -3,7 +3,7 @@ from sqlite3 import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import  serializers, status, viewsets
+from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 
-from reviews.models import Categories, Genres, Titles, User
+from reviews.models import Category, Genre, Title, User
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
 from .permissions import IsAdmin, IsAdminOrReadOnly
@@ -27,31 +27,33 @@ class CategoryViewSet(ModelMixinSet):
     """
     Получение списка всех категорий. Доступ без токена.
     """
-    queryset = Categories.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     pagination_class = PageNumberPagination
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class GenreViewSet(ModelMixinSet):
     """
     Получение списка всех жанров. Доступ без токена.
     """
-    queryset = Genres.objects.all()
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     pagination_class = PageNumberPagination
     search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitleViewSet(ModelMixinSet):
     """
     Получение списка всех произведений. Доступ без токена.
     """
-    queryset = Titles.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitleReadSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -103,7 +105,7 @@ def token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = (IsAdmin,)
+    permission_classes = (IsAdmin,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     search_fields = ('username',)
     lookup_field = 'username'

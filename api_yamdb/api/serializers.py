@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Categories, Genres, Titles, User
+from reviews.models import Category, Genre, Title, User
 from reviews.validators import ValidateUsername, validate_year
 
 
@@ -8,14 +8,14 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Categories
+        model = Category
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Genres
+        model = Genre
 
 
 # Верно ли разделить сериализаторы тайтлов на два?
@@ -32,7 +32,7 @@ class TitleReadSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'description', 'genre', 'category'
         )
-        model = Titles
+        model = Title
         read_only = True
 
 
@@ -41,12 +41,12 @@ class TitleWriteDeleteSerializer(serializers.ModelSerializer):
     Сериализатор для запросов POST, DELETE.
     """
     genre = serializers.SlugRelatedField(
-        queryset=Genres.objects.all(),
+        queryset=Genre.objects.all(),
         slug_field='slug',
         many=True
     )
     category = serializers.SlugRelatedField(
-        queryset=Categories.objects.all(),
+        queryset=Category.objects.all(),
         slug_field='slug'
     )
     year = serializers.IntegerField(validators=[validate_year])
@@ -55,7 +55,7 @@ class TitleWriteDeleteSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'year', 'description', 'genre', 'category'
         )
-        model = Titles
+        model = Title
 
 
 class UserSerializer(ValidateUsername, serializers.ModelSerializer):
