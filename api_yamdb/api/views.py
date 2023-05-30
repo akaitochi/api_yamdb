@@ -30,7 +30,7 @@ class CategoryViewSet(ModelMixinSet):
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = ''
     search_fields = ('name',)
 
 
@@ -42,7 +42,7 @@ class GenreViewSet(ModelMixinSet):
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = ''
     search_fields = ('name',)
 
 
@@ -54,7 +54,7 @@ class TitleViewSet(ModelMixinSet):
     serializer_class = TitleReadSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = ''
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -71,7 +71,9 @@ def signup(request):
     try:
         user, _ = User.objects.get_or_create(**serializer.validated_data)
     except IntegrityError:
-        raise serializers.ValidationError
+        raise serializers.ValidationError(
+            'Некорректное имя пользователя или почта'
+        )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='YaMDB registration',

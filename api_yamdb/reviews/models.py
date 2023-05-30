@@ -77,6 +77,13 @@ class User(AbstractUser):
         ('moderator', 'Moderator'),
         ('admin', 'Admin')
     ]
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+    )
     bio = models.TextField('Биография', blank=True,)
     role = models.CharField(
         max_length=10,
