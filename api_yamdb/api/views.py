@@ -8,11 +8,56 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
-
-from reviews.models import User
+from reviews.models import Categories, Genres, Titles, User
+from .filters import TitleFilter
+from .mixins import ModelMixinSet
 from .permissions import IsAdmin
-from .serializers import SignUpSerializer, TokenSerializer, UserSerializer
+from .serializers import (
+    CategorySerializer, GenreSerializer, SignUpSerializer,
+    TokenSerializer, TitleReadSerializer, TitleWriteDeleteSerializer,
+    UserSerializer
+)
+
+
+class CategoryViewSet(ModelMixinSet):
+    """
+    Получение списка всех категорий. Доступ без токена.
+    """
+    queryset = Categories.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = ''
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenreViewSet(ModelMixinSet):
+    """
+    Получение списка всех жанров. Доступ без токена.
+    """
+    queryset = Genres.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = ''
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+
+
+class TitleViewSet(ModelMixinSet):
+    """
+    Получение списка всех произведений. Доступ без токена.
+    """
+    queryset = Titles.objects.all()
+    serializer_class = TitleReadSerializer
+    permission_classes = ''
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return TitleReadSerializer
+        return TitleWriteDeleteSerializer
 
 
 @api_view(['POST'])
