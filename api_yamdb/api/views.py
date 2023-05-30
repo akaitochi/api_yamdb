@@ -3,8 +3,9 @@ from sqlite3 import IntegrityError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
-from rest_framework import pagination, serializers, status, viewsets
+from rest_framework import  serializers, status, viewsets
 from rest_framework.decorators import action, api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -30,7 +31,7 @@ class CategoryViewSet(ModelMixinSet):
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = ''
+    pagination_class = PageNumberPagination
     search_fields = ('name',)
 
 
@@ -42,7 +43,7 @@ class GenreViewSet(ModelMixinSet):
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = ''
+    pagination_class = PageNumberPagination
     search_fields = ('name',)
 
 
@@ -54,7 +55,7 @@ class TitleViewSet(ModelMixinSet):
     serializer_class = TitleReadSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = ''
+    pagination_class = PageNumberPagination
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -102,11 +103,11 @@ def token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
+    # permission_classes = (IsAdmin,)
     http_method_names = ('get', 'post', 'patch', 'delete')
     search_fields = ('username',)
     lookup_field = 'username'
-    pagination_class = pagination.PageNumberPagination
+    pagination_class = PageNumberPagination
 
     @action(methods=('get', 'patch',), detail=False, url_path='me',
             permission_classes=(IsAuthenticated,))
