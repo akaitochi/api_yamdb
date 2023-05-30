@@ -30,7 +30,7 @@ class CategoryViewSet(ModelMixinSet):
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = ''
+    # pagination_class = ''
     search_fields = ('name',)
 
 
@@ -42,7 +42,7 @@ class GenreViewSet(ModelMixinSet):
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    pagination_class = ''
+    # pagination_class = ''
     search_fields = ('name',)
 
 
@@ -54,7 +54,7 @@ class TitleViewSet(ModelMixinSet):
     serializer_class = TitleReadSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = ''
+    pagination_class = pagination.PageNumberPagination
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -102,7 +102,7 @@ def token(request):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdmin,)
+    permission_classes = ()
     http_method_names = ('get', 'post', 'patch', 'delete')
     search_fields = ('username',)
     lookup_field = 'username'
