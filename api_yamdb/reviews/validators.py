@@ -1,8 +1,9 @@
 import datetime as dt
+import re
 
 from django.core.exceptions import ValidationError
 
-from rest_framework import serializers
+# from .models import User
 
 
 def validate_year(value):
@@ -15,8 +16,21 @@ class ValidateUsername:
 
     def validate_username(self, value):
         """Проверяем, что нельзя использовать 'me' в качестве username"""
-        username = value.lower()
-        if username == 'me':
-            raise serializers.ValidationError(
+        if value.lower() == 'me':
+            raise ValidationError(
                 'Пользователя с username "me" нельзя создавать'
             )
+        if not re.match(r"^[\w.@+-]+\Z", value):
+            raise ValidationError(
+                'username содержит недопустимые символы'
+            )
+
+
+# class ValidateEmail:
+#     """Валидатор адреса электронной почты"""
+
+#     def validate_email(self, value):
+#         if User.objects.filter(email=value.lower()).exists():
+#             raise ValidationError(
+#                 'Почта уже используется'
+#             )
