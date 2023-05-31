@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
@@ -6,37 +7,43 @@ from .validators import validate_year
 
 VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
 
-class Categories():
+class Category(models.Model):
     name = models.CharField(
-        max_length=200,
-        verbose_name='Название жанра'
+        max_length=256,
+        verbose_name='Название категории'
     )
     slug = models.SlugField(
+        max_length=50,
         unique=True,
-        verbose_name='Слаг жанра'
+        db_index=True,
+        verbose_name='Слаг категории'
     )
 
     class Meta:
         verbose_name = 'Категория'
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=256,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
+        max_length=50,
         unique=True,
+        db_index=True,
         verbose_name='Слаг жанра'
     )
+    on_delete = models.CASCADE
 
     class Meta:
         verbose_name = 'Жанр'
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
-        max_length=200,
+        max_length=256,
+        db_index=True,
         verbose_name='Название'
     )
     year = models.IntegerField(
@@ -49,17 +56,18 @@ class Titles(models.Model):
         verbose_name='Описание'
     )
     genre = models.ManyToManyField(
-        Genres,
+        Genre,
         verbose_name='Жанр'
     )
     category = models.ForeignKey(
-        Categories,
+        Category,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         verbose_name='Категория',
         related_name='titles'
     )
+    on_delete = models.CASCADE
 
     class Meta:
         ordering = ('name',)

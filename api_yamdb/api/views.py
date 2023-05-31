@@ -25,29 +25,36 @@ from .serializers import (
     UserSerializer, ReviewSerializer, CommentSerializer
 )
 
-
 DELETE_CONTENT = 'Удаление чужого контента запрещено!'
 
 
-class CategoryViewSet(ModelViewSet):
+class CategoryViewSet(ModelMixinSet):
     """
     Получение списка всех категорий. Доступ без токена.
     """
-    queryset = Categories.objects.all()
-    serializer_class = ''
-    permission_classes = ''
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (SearchFilter,)
+    pagination_class = PageNumberPagination
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class GenreViewSet(ModelViewSet):
+class GenreViewSet(ModelMixinSet):
     """
     Получение списка всех жанров. Доступ без токена.
     """
-    queryset = Genres.objects.all()
-    serializer_class = ''
-    permission_classes = ''
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (SearchFilter,)
+    pagination_class = PageNumberPagination
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class TitleViewSet(ModelViewSet):
+class TitleViewSet(ModelMixinSet):
     """
     Получение списка всех произведений. Доступ без токена.
     """
