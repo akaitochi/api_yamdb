@@ -2,7 +2,89 @@ from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
-from reviews.models import Review, Comment, Titles
+from reviews.models import Category, Genre, Title, User, Review, Comment
+from reviews.validators import ValidateUsername, validate_year
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Category
+
+
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
+
+
+# Верно ли разделить сериализаторы тайтлов на два?
+class TitleReadSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для запросов GET.
+    """
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(
+        many=True
+    )
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category'
+        )
+        model = Title
+        read_only = True
+
+
+class TitleWriteDeleteSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для запросов POST, DELETE.
+    """
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True
+    )
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+    year = serializers.IntegerField(validators=[validate_year])
+
+    class Meta:
+        fields = (
+            'id', 'name', 'year', 'description', 'genre', 'category'
+        )
+        model = Title
+
+
+class UserSerializer(ValidateUsername, serializers.ModelSerializer):
+    """Сериализация данных пользователя"""
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
+class SignUpSerializer(ValidateUsername, serializers.Serializer):
+    """Сериализация данных пользователя при регистрации"""
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+    )
+    email = serializers.EmailField(required=True, max_length=254)
+
+
+class TokenSerializer(ValidateUsername, serializers.Serializer):
+    username = serializers.CharField(
+        required=True,
+        max_length=150,
+    )
+    token = serializers.CharField(required=True)
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
