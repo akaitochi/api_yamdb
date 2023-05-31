@@ -66,16 +66,13 @@ class CommentViewSet(ModelViewSet):
     """
     Получение списка всех Комментариев. Доступ без токена.
     """
+    queryset = Review.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorOrReadOnly]
 
-    def get_queryset(self):
-        post = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return post.comments.all()
-
     def perform_create(self, serializer):
-        post = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, post=post)
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
     def perform_destroy(self, serializer):
         if serializer.author != self.request.user:
