@@ -7,6 +7,7 @@ from .validators import validate_year
 
 VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
 
+
 class Category(models.Model):
     name = models.CharField(
         max_length=256,
@@ -121,7 +122,7 @@ class User(AbstractUser):
 class Review(models.Model):
     """Отзыв произведения."""
     title = models.ForeignKey(
-        Titles,
+        Title,
         verbose_name='Произведение',
         on_delete=models.CASCADE,
     )
@@ -144,7 +145,6 @@ class Review(models.Model):
         db_index=True
     )
 
-    
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -175,7 +175,6 @@ class Comment(models.Model):
         auto_now_add=True,
         db_index=True
     )
-
 
     class Meta:
         verbose_name = 'Комментарий'
