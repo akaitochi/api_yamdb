@@ -1,9 +1,15 @@
 from rest_framework.viewsets import ModelViewSet
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.core.exceptions import PermissionDenied
+from rest_framework import status
+from rest_framework.response import Response
 
 from reviews.models import Categories, Genres, Titles, Review, Comment
-from .serializers import ReviewSerializer
+from .serializers import ReviewSerializer, CommentSerializer
+from .permissions import IsAuthorOrReadOnly
+
+DELETE_CONTENT = 'Удаление чужого контента запрещено!'
 
 
 class CategoryViewSet(ModelViewSet):
@@ -33,7 +39,7 @@ class TitleViewSet(ModelViewSet):
     permission_classes = ''
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+class ReviewViewSet(ModelViewSet):
     """
     Получение списка всех Отзывов. Доступ без токена.
     """
@@ -54,3 +60,24 @@ class ReviewViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class CommentViewSet(ModelViewSet):
+    """
+    Получение списка всех Комментариев. Доступ без токена.
+    """
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorOrReadOnly]
+
+    def get_queryset(self):
+        post = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return post.comments.all()
+
+    def perform_create(self, serializer):
+        post = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, post=post)
+
+    def perform_destroy(self, serializer):
+        if serializer.author != self.request.user:
+            raise PermissionDenied(DELETE_CONTENT)
+        super().perform_destroy(serializer)

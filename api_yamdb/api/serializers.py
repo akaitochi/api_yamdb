@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 from reviews.models import Review, Comment, Titles
 
@@ -29,3 +29,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = '__all__'
+        model = Comment
+        read_only_fields = ('review',)
