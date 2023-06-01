@@ -122,7 +122,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(methods=('get', 'patch',), detail=False, url_path='me',
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        user = request.user
+        user = get_object_or_404(User, id=request.user.id)
         if request.method == 'GET':
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -136,9 +136,15 @@ class ReviewViewSet(ModelViewSet):
     """
     Получение списка всех Отзывов. Доступ без токена.
     """
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        title = get_object_or_404(
+            Title,
+            id=self.kwargs.get('title_id')
+        )
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         title = get_object_or_404(
@@ -162,14 +168,15 @@ class CommentViewSet(ModelViewSet):
     Получение списка всех Комментариев. Доступ без токена.
     """
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,
+                          IsAuthenticatedOrReadOnly)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         return review.comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
         serializer.save(author=self.request.user, review=review)
 
     def perform_destroy(self, serializer):
