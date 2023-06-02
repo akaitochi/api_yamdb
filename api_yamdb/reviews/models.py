@@ -131,6 +131,9 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
+    class Meta:
+        ordering = ['username']
+
     # @property
     # def is_superuser(self):
     #     return self.role == "admin"

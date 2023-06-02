@@ -24,13 +24,14 @@ class ValidateUsername:
             raise ValidationError(
                 'username содержит недопустимые символы'
             )
+        return value
 
 
 # class ValidateEmail:
 #     """Валидатор адреса электронной почты"""
 
-#     def validate_email(self, value):
-#         if User.objects.filter(email=value.lower()).exists():
-#             raise ValidationError(
-#                 'Почта уже используется'
-#             )
+    # def validate_email(self, value):
+    #     if User.objects.filter(email=value.lower()).exists():
+    #         raise ValidationError(
+    #             'Почта уже используется'
+    #         )

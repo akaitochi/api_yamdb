@@ -14,13 +14,6 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
                 or obj.author == request.user)
 
 
-class IsUser(permissions.BasePermission):
-    """Доступ только пользователям с ролью 'User'."""
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-
-
 class IsModerator(permissions.BasePermission):
     """Доступ только пользователям с ролью 'Moderator'."""
 

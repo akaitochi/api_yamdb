@@ -48,7 +48,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
-    ).all()
+    ).order_by('-id')
     serializer_class = TitleWriteDeleteSerializer
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete')
@@ -90,8 +90,8 @@ def signup(request):
 def token(request):
     serializer = TokenSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    username = serializer.validated_data.get('username')
-    user = get_object_or_404(User, username)
+    username = serializer.validated_data['username']
+    user = get_object_or_404(User, username=username)
     confirmation_code = serializer.validated_data.get('confirmation_code')
     if not default_token_generator.check_token(user, confirmation_code):
         raise serializers.ValidationError('Код подтверждения неверный!')
