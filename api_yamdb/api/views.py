@@ -4,7 +4,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status, viewsets
+from rest_framework import filters, serializers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (AllowAny,
@@ -43,7 +43,7 @@ class GenreViewSet(ModelMixinSet):
     serializer_class = GenreSerializer
 
 
-class TitleViewSet(ModelMixinSet):
+class TitleViewSet(viewsets.ModelViewSet):
     """Получение списка всех произведений. Доступ без токена."""
 
     queryset = Title.objects.annotate(
@@ -51,6 +51,7 @@ class TitleViewSet(ModelMixinSet):
     ).all()
     serializer_class = TitleWriteDeleteSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    http_method_names = ('get', 'post', 'patch', 'delete')
     filter_backends = (DjangoFilterBackend,)
     pagination_class = PageNumberPagination
     filterset_class = TitleFilter
@@ -105,6 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
     http_method_names = ('get', 'post', 'patch', 'delete')
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
     pagination_class = PageNumberPagination
@@ -128,6 +130,7 @@ class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
                           IsSuperUserIsAdminIsModeratorIsAuthor)
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_title(self):
         return get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -154,6 +157,7 @@ class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,
                           IsSuperUserIsAdminIsModeratorIsAuthor)
+    http_method_names = ('get', 'post', 'patch', 'delete')
 
     def get_review(self):
         return get_object_or_404(Review, id=self.kwargs.get('review_id'))
