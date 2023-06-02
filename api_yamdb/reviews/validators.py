@@ -12,10 +12,10 @@ def validate_year(value):
 
 
 class ValidateUsername:
-    """Валидатор имени пользователя"""
+    """Валидатор имени пользователя."""
 
     def validate_username(self, value):
-        """Проверяем, что нельзя использовать 'me' в качестве username"""
+        """Проверяем, что нельзя использовать 'me' в качестве username."""
         if value.lower() == 'me':
             raise ValidationError(
                 'Пользователя с username "me" нельзя создавать'

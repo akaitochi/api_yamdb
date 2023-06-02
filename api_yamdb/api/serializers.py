@@ -20,28 +20,26 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
 
 
-# Верно ли разделить сериализаторы тайтлов на два?
 class TitleReadSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для запросов GET.
-    """
+    """Сериализатор для запросов GET."""
+
     category = CategorySerializer(read_only=True)
     genre = GenreSerializer(
         many=True
     )
+    rating = serializers.IntegerField()
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category'
+            'id', 'rating', 'name', 'year', 'description', 'genre', 'category'
         )
         model = Title
         read_only = True
 
 
 class TitleWriteDeleteSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для запросов POST, DELETE.
-    """
+    """Сериализатор для запросов POST, DELETE."""
+
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         slug_field='slug',
@@ -51,17 +49,18 @@ class TitleWriteDeleteSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         slug_field='slug'
     )
+    rating = serializers.IntegerField(read_only=True)
     year = serializers.IntegerField(validators=[validate_year])
 
     class Meta:
         fields = (
-            'id', 'name', 'year', 'description', 'genre', 'category'
+            'id', 'rating', 'name', 'year', 'description', 'genre', 'category'
         )
         model = Title
 
 
 class UserSerializer(ValidateUsername, serializers.ModelSerializer):
-    """Сериализация данных пользователя"""
+    """Сериализация данных пользователя."""
 
     class Meta:
         model = User
@@ -70,7 +69,8 @@ class UserSerializer(ValidateUsername, serializers.ModelSerializer):
 
 
 class SignUpSerializer(ValidateUsername, serializers.Serializer):
-    """Сериализация данных пользователя при регистрации"""
+    """Сериализация данных пользователя при регистрации."""
+
     username = serializers.CharField(
         required=True,
         max_length=150,
