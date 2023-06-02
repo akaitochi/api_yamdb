@@ -9,6 +9,8 @@ VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
 
 
 class Category(models.Model):
+    """Класс для категорий произведений."""
+
     name = models.CharField(
         max_length=256,
         verbose_name='Название категории'
@@ -25,6 +27,8 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
+    """Класс для жанров произведений."""
+
     name = models.CharField(
         max_length=256,
         verbose_name='Название жанра'
@@ -42,12 +46,15 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
+    """Класс для произведений."""
+
     name = models.CharField(
         max_length=256,
         db_index=True,
         verbose_name='Название'
     )
     year = models.IntegerField(
+        db_index=True,
         validators=[validate_year],
         verbose_name='Год выпуска'
     )
@@ -58,7 +65,8 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(
         Genre,
-        verbose_name='Жанр'
+        blank=True,
+        verbose_name='Жанр',
     )
     category = models.ForeignKey(
         Category,
@@ -68,14 +76,13 @@ class Title(models.Model):
         verbose_name='Категория',
         related_name='titles'
     )
-    on_delete = models.CASCADE
 
     class Meta:
         ordering = ('name',)
         verbose_name = 'Произведения'
 
     def __str__(self):
-        return self.name
+        return self.name[:20]
 
 
 class User(AbstractUser):
@@ -90,6 +97,16 @@ class User(AbstractUser):
         unique=True,
         blank=False,
         null=False,
+    )
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150,
+        blank=True
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150,
+        blank=True
     )
     email = models.EmailField(
         verbose_name='Электронная почта',
@@ -121,6 +138,7 @@ class User(AbstractUser):
 
 class Review(models.Model):
     """Отзыв произведения."""
+
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -160,6 +178,7 @@ class Review(models.Model):
 
 class Comment(models.Model):
     """Комментарий к отзыву произведения."""
+
     review = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,

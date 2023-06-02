@@ -2,6 +2,7 @@ from sqlite3 import IntegrityError
 
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
@@ -12,59 +13,48 @@ from rest_framework.permissions import (AllowAny,
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
-from django.core.exceptions import PermissionDenied
 
 from reviews.models import Category, Genre, Title, User, Review
 from .filters import TitleFilter
 from .mixins import ModelMixinSet
-from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .permissions import (IsAdmin, IsAdminOrReadOnly,
+                          IsSuperUserIsAdminIsModeratorIsAuthor)
 from .serializers import (
     CategorySerializer, GenreSerializer, SignUpSerializer,
     TokenSerializer, TitleReadSerializer, TitleWriteDeleteSerializer,
-    UserSerializer, ReviewSerializer, CommentSerializer
+    UserSerializer, ReviewSerializer, CommentSerializer,
 )
 
 DELETE_CONTENT = 'Удаление чужого контента запрещено!'
 
 
 class CategoryViewSet(ModelMixinSet):
-    """
-    Получение списка всех категорий. Доступ без токена.
-    """
+    """Получение списка всех категорий. Доступ без токена."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (SearchFilter,)
-    pagination_class = PageNumberPagination
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class GenreViewSet(ModelMixinSet):
-    """
-    Получение списка всех жанров. Доступ без токена.
-    """
+    """Получение списка всех жанров. Доступ без токена."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (SearchFilter,)
-    pagination_class = PageNumberPagination
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
 class TitleViewSet(ModelMixinSet):
-    """
-    Получение списка всех произведений. Доступ без токена.
-    """
-    queryset = Title.objects.all()
-    serializer_class = TitleReadSerializer
+    """Получение списка всех произведений. Доступ без токена."""
+
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).all()
+    serializer_class = TitleWriteDeleteSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     pagination_class = PageNumberPagination
     filterset_class = TitleFilter
+    ordering_fields = ('name',)
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -75,7 +65,7 @@ class TitleViewSet(ModelMixinSet):
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def signup(request):
-    """Создает пользователя и отправляет код подтверждения"""
+    """Создает пользователя и отправляет код подтверждения."""
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     try:
@@ -133,25 +123,20 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(ModelViewSet):
-    """
-    Получение списка всех Отзывов. Доступ без токена.
-    """
+    """Получение списка всех Отзывов. Доступ без токена."""
+
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          IsSuperUserIsAdminIsModeratorIsAuthor)
+
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id')
-        )
-        return title.reviews.all()
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(
-            Title,
-            id=self.kwargs.get('title_id')
-        )
-        serializer.save(author=self.request.user, title=title)
+        serializer.save(author=self.request.user, title=self.get_title())
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -164,22 +149,22 @@ class ReviewViewSet(ModelViewSet):
 
 
 class CommentViewSet(ModelViewSet):
-    """
-    Получение списка всех Комментариев. Доступ без токена.
-    """
+    """Получение списка всех Комментариев. Доступ без токена."""
+
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnly,
-                          IsAuthenticatedOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly,
+                          IsSuperUserIsAdminIsModeratorIsAuthor)
+
+    def get_review(self):
+        return get_object_or_404(Review, id=self.kwargs.get('review_id'))
 
     def get_queryset(self):
-        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        return review.comments.all()
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, id=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, review=review)
+        serializer.save(author=self.request.user, review=self.get_review())
 
-    def perform_destroy(self, serializer):
-        if serializer.author != self.request.user:
-            raise PermissionDenied(DELETE_CONTENT)
-        super().perform_destroy(serializer)
+    # def perform_destroy(self, serializer):
+    #     if serializer.author != self.request.user:
+    #         raise PermissionDenied(DELETE_CONTENT)
+    #     super().perform_destroy(serializer)
