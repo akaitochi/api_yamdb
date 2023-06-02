@@ -2,11 +2,7 @@ import csv
 
 from django.conf import settings
 from django.core.management import BaseCommand
-
-from reviews.models import (
-    Category, Comment, Genre, Review, Title, User
-)
-
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 DICT = {
     User: 'users.csv',
