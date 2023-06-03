@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.db import models
 
 from .validators import validate_year
 
@@ -86,6 +85,8 @@ class Title(models.Model):
 
 
 class User(AbstractUser):
+    """Класс для пользователей."""
+
     ROLES_CHOICES = [
         ('user', 'User'),
         ('moderator', 'Moderator'),
@@ -131,9 +132,8 @@ class User(AbstractUser):
     def is_admin(self):
         return self.role == "admin"
 
-    # @property
-    # def is_superuser(self):
-    #     return self.role == "admin"
+    class Meta:
+        ordering = ['username']
 
 
 class Review(models.Model):

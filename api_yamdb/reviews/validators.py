@@ -3,8 +3,6 @@ import re
 
 from django.core.exceptions import ValidationError
 
-# from .models import User
-
 
 def validate_year(value):
     if value > dt.date.today().year:
@@ -16,6 +14,7 @@ class ValidateUsername:
 
     def validate_username(self, value):
         """Проверяем, что нельзя использовать 'me' в качестве username."""
+
         if value.lower() == 'me':
             raise ValidationError(
                 'Пользователя с username "me" нельзя создавать'
@@ -24,13 +23,4 @@ class ValidateUsername:
             raise ValidationError(
                 'username содержит недопустимые символы'
             )
-
-
-# class ValidateEmail:
-#     """Валидатор адреса электронной почты"""
-
-#     def validate_email(self, value):
-#         if User.objects.filter(email=value.lower()).exists():
-#             raise ValidationError(
-#                 'Почта уже используется'
-#             )
+        return value

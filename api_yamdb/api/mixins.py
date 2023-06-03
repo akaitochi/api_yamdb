@@ -1,10 +1,9 @@
 from rest_framework.filters import SearchFilter
-from rest_framework.mixins import (
-    CreateModelMixin, DestroyModelMixin, ListModelMixin
-)
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
 from rest_framework.viewsets import GenericViewSet
 
-from .permissions import (IsAdminOrReadOnly)
+from .permissions import IsAdminOrReadOnly
 
 
 class ModelMixinSet(CreateModelMixin, DestroyModelMixin,

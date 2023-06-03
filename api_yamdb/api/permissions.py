@@ -14,20 +14,6 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
                 or obj.author == request.user)
 
 
-class IsUser(permissions.BasePermission):
-    """Доступ только пользователям с ролью 'User'."""
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated
-
-
-class IsModerator(permissions.BasePermission):
-    """Доступ только пользователям с ролью 'Moderator'."""
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_moderator
-
-
 class IsAdmin(permissions.BasePermission):
     """Доступ только пользователям с ролью 'Admin'."""
 
@@ -58,7 +44,6 @@ class IsSuperUserIsAdminIsModeratorIsAuthor(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated
             and (request.user.is_superuser
-                 or request.user.is_staff
                  or request.user.is_admin
                  or request.user.is_moderator
                  or request.user == obj.author)
