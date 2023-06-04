@@ -5,17 +5,19 @@ from users.models import User
 from .validators import validate_year
 
 VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
+CHARFIELDMAXLENGTH = 256
+SLUGFIELDMAXLENGTH = 50
 
 
 class Category(models.Model):
     """Класс для категорий произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CHARFIELDMAXLENGTH,
         verbose_name='Название категории'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=SLUGFIELDMAXLENGTH,
         unique=True,
         db_index=True,
         verbose_name='Слаг категории'
@@ -23,36 +25,37 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'Категория'
+        ordering = ('name',)
 
 
 class Genre(models.Model):
     """Класс для жанров произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CHARFIELDMAXLENGTH,
         verbose_name='Название жанра'
     )
     slug = models.SlugField(
-        max_length=50,
+        max_length=SLUGFIELDMAXLENGTH,
         unique=True,
         db_index=True,
         verbose_name='Слаг жанра'
     )
-    on_delete = models.CASCADE
 
     class Meta:
         verbose_name = 'Жанр'
+        ordering = ('name',)
 
 
 class Title(models.Model):
     """Класс для произведений."""
 
     name = models.CharField(
-        max_length=256,
+        max_length=CHARFIELDMAXLENGTH,
         db_index=True,
         verbose_name='Название'
     )
-    year = models.IntegerField(
+    year = models.PositiveIntegerField(
         db_index=True,
         validators=[validate_year],
         verbose_name='Год выпуска'

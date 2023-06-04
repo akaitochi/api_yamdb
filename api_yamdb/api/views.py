@@ -34,6 +34,8 @@ class GenreViewSet(ModelMixinSet):
 class TitleViewSet(viewsets.ModelViewSet):
     """Получение списка всех произведений. Доступ без токена."""
 
+# я пыталась, если убрать отсюда order_by, то вылазит 3 warnings
+# это если я правильно поняла "на уровне базы"
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     ).order_by('-id')
