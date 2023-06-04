@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from reviews.models import Category, Comment, Genre, Review, Title, User
-from reviews.validators import ValidateUsername, validate_year
+from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.validators import validate_year
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -57,34 +57,6 @@ class TitleWriteDeleteSerializer(serializers.ModelSerializer):
             'id', 'rating', 'name', 'year', 'description', 'genre', 'category'
         )
         model = Title
-
-
-class UserSerializer(ValidateUsername, serializers.ModelSerializer):
-    """Сериализация данных пользователя."""
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'first_name',
-                  'last_name', 'bio', 'role')
-
-
-class SignUpSerializer(ValidateUsername, serializers.Serializer):
-    """Сериализация данных пользователя при регистрации."""
-
-    username = serializers.CharField(
-        required=True,
-        max_length=150,
-    )
-    email = serializers.EmailField(required=True, max_length=254)
-
-
-class TokenSerializer(ValidateUsername, serializers.Serializer):
-    """Сериализация данных пользователя при получении токена."""
-    username = serializers.CharField(
-        required=True,
-        max_length=150,
-    )
-    confirmation_code = serializers.CharField(required=True)
 
 
 class ReviewSerializer(serializers.ModelSerializer):

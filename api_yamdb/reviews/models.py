@@ -1,7 +1,7 @@
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from users.models import User
 from .validators import validate_year
 
 VALIDATOR_MESSAGE = 'Оценка от 1 до 10'
@@ -82,58 +82,6 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name[:20]
-
-
-class User(AbstractUser):
-    """Класс для пользователей."""
-
-    ROLES_CHOICES = [
-        ('user', 'User'),
-        ('moderator', 'Moderator'),
-        ('admin', 'Admin')
-    ]
-    username = models.CharField(
-        verbose_name='Имя пользователя',
-        max_length=150,
-        unique=True,
-        blank=False,
-        null=False,
-    )
-    first_name = models.CharField(
-        verbose_name='Имя',
-        max_length=150,
-        blank=True
-    )
-    last_name = models.CharField(
-        verbose_name='Фамилия',
-        max_length=150,
-        blank=True
-    )
-    email = models.EmailField(
-        verbose_name='Электронная почта',
-        max_length=254,
-        blank=False,
-        unique=True,
-        null=False
-    )
-    bio = models.TextField(verbose_name='Биография', blank=True,)
-    role = models.CharField(
-        verbose_name='Роль',
-        max_length=10,
-        choices=ROLES_CHOICES,
-        default='user',
-    )
-
-    @property
-    def is_moderator(self):
-        return self.role == "moderator"
-
-    @property
-    def is_admin(self):
-        return self.role == "admin"
-
-    class Meta:
-        ordering = ['username']
 
 
 class Review(models.Model):
